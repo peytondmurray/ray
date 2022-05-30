@@ -132,6 +132,9 @@ class TensorflowPredictor(Predictor):
             if feature_columns:
                 data = data[feature_columns]
             data = data.values
+        else:
+            if feature_columns:
+                data = data[:, feature_columns]
 
         tensor = tf.convert_to_tensor(data, dtype=dtype)
 
