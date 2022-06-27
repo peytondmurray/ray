@@ -6,8 +6,9 @@ from ray._private.ray_constants import env_integer
 from ray.types import ObjectRef
 from ray.util.annotations import PublicAPI
 
+
 try:
-    import tqdm
+    import tqdm.auto as tqdm
 
     needs_warning = False
 except ImportError:
