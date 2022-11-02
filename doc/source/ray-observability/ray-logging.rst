@@ -131,7 +131,7 @@ Limitations:
 
 Tip: To avoid `print` statements from the driver conflicting with tqdm output, use `ray.experimental.tqdm_ray.safe_print` instead.
 
-How to set up loggers
+Customizing worker loggers
 ~~~~~~~~~~~~~~~~~~~~~
 When using Ray, all tasks and actors are executed remotely in Ray's worker processes.
 
