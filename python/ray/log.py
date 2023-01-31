@@ -4,14 +4,15 @@ import inspect
 import logging
 import os
 import pathlib
+import pickle
 import re
+import socketserver
+import struct
 from logging.config import dictConfig
 from typing import Callable, Iterable, List, Optional, Union
 
 # Set the number of columns to use for rich output when in jupyter
 os.environ["JUPYTER_COLUMNS"] = "160"
-
-DEFAULT_DATASET_LOG_PATH = "logs/ray-data.log"
 
 try:
     import rich
@@ -20,7 +21,11 @@ try:
     FormatTimeCallable = Callable[[datetime.datetime], rich.text.Text]
 
     class RayLogRender(rich._log_render.LogRender):
-        """Render a log record (renderables) to a rich console."""
+        """Render a log record (renderables) to a rich console.
+
+        This class stores some console state; for example, the last logged time, which
+        is used in formatting subsequent messages.
+        """
 
         def __call__(
             self,
@@ -100,8 +105,8 @@ try:
             output.add_row(*row)
             return output
 
-    class ConsoleHandler(rich.logging.RichHandler):
-        """Logging handler which uses rich to produce nicely formatted logs."""
+    class RichRayHandler(logging.handlers.SocketHandler, rich.logging.RichHandler):
+        """Rich log handler, used to handle logs if rich is installed."""
 
         def __init__(
             self,
@@ -114,10 +119,15 @@ try:
             log_time_format: Union[str, FormatTimeCallable] = "[%x %X]",
             **kwargs,
         ):
+            # Rich highlighter conflicts with colorama; disable here
             if not highlighter:
                 highlighter = rich.highlighter.NullHighlighter()
 
-            super().__init__(*args, highlighter=highlighter, **kwargs)
+            logging.handlers.SocketHandler.__init__(self, None, None)
+            rich.logging.RichHandler.__init__(
+                self, *args, highlighter=highlighter, rich_tracebacks=False, **kwargs
+            )
+
             self._log_render = RayLogRender(
                 show_time=show_time,
                 show_level=show_level,
@@ -126,6 +136,33 @@ try:
                 omit_repeated_times=omit_repeated_times,
                 level_width=None,
             )
+
+        def emit(self, record: logging.LogRecord):
+            """Emit the log message.
+
+            If this is a worker, serialize the record and send it to the driver via TCP.
+            If this is the driver, emit the message using the rich handler.
+
+            Args:
+                record: Log record to be emitted
+            """
+            import ray
+
+            if (
+                ray._private.worker.global_worker.mode
+                == ray._private.worker.WORKER_MODE
+            ):
+                if self.port is None:
+                    self.address = (
+                        "localhost",
+                        logging.handlers.DEFAULT_TCP_LOGGING_PORT,
+                    )
+                    self.port = logging.handlers.DEFAULT_TCP_LOGGING_PORT
+
+                logging.handlers.SocketHandler.emit(self, record)
+
+            else:
+                rich.logging.RichHandler.emit(self, record)
 
         def render(
             self,
@@ -167,14 +204,18 @@ try:
 
 except ImportError:
     rich = None
-    logging.info(
+    logging.warn(
         "rich is not installed. Run `pip install rich` for"
         " improved logging, progress, and tracebacks."
     )
 
 
 class ContextFilter(logging.Filter):
-    """A filter that adds info about the relevant ray package to log records."""
+    """A filter that adds ray context info to log records.
+
+    This filter adds a package name to append to the message as well as information
+    about what worker emitted the message, if applicable.
+    """
 
     logger_regex = re.compile(r"ray(\.(?P<subpackage>\w+))?(\..*)?")
     package_message_names = {
@@ -187,6 +228,10 @@ class ContextFilter(logging.Filter):
         "workflow": "Workflow",
     }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.global_worker_mode = None
+
     def filter(self, record: logging.LogRecord):
         match = self.logger_regex.search(record.name)
         if match:
@@ -195,6 +240,17 @@ class ContextFilter(logging.Filter):
             )
         else:
             record.package = "Ray Core"
+
+        # Lazily load ray when this is called to avoid circular import
+        import ray
+
+        if self.global_worker_mode is None:
+            self.global_worker_mode = ray._private.worker.global_worker.mode
+
+        if self.global_worker_mode == ray._private.worker.WORKER_MODE:
+            record.node_ip_address = (
+                ray.runtime_context.get_runtime_context().worker.node_ip_address
+            )
 
         return True
 
@@ -242,6 +298,137 @@ def oneshot(func: Callable[[None], None]):
     return wrapped
 
 
+class PlainRayHandler(logging.handlers.SocketHandler, logging.StreamHandler):
+    """Plain log handler, used as fallback if rich is not installed."""
+
+    def __init__(self):
+        logging.handlers.SocketHandler.__init__(self, None, None)
+        logging.StreamHandler.__init__(self)
+
+    def emit(self, record: logging.LogRecord):
+        """Emit the log message.
+
+        If this is a worker, serialize the record and send it to the driver via TCP.
+        If this is the driver, emit the message using the appropriate console handler.
+
+        Args:
+            record: Log record to be emitted
+        """
+        #
+        # by the LogRecordStreamHandler running in a thread there.
+        import ray
+
+        if ray._private.worker.global_worker.mode == ray._private.worker.WORKER_MODE:
+            if self.port is None:
+                self.address = ("localhost", logging.handlers.DEFAULT_TCP_LOGGING_PORT)
+                self.port = logging.handlers.DEFAULT_TCP_LOGGING_PORT
+
+            logging.handlers.SocketHandler.emit(self, record)
+
+        else:
+            logging.StreamHandler.emit(self, record)
+
+
+class LogRecordStreamer(socketserver.StreamRequestHandler):
+    """Helper for streaming logging requests with the LogRecordReceiver.
+
+    This logs the record using whatever logging policy is
+    configured locally.
+
+    See https://docs.python.org/3/howto/logging-cookbook.html
+        #sending-and-receiving-logging-events-across-a-network
+    for more information.
+    """
+
+    def handle(self):
+        """Handle multiple requests - each expected to be a 4-byte length,
+        followed by the LogRecord in pickle format. Logs the record
+        according to whatever policy is configured locally.
+        """
+        while True:
+            chunk = self.connection.recv(4)
+            if len(chunk) < 4:
+                break
+            slen = struct.unpack(">L", chunk)[0]
+            chunk = self.connection.recv(slen)
+            while len(chunk) < slen:
+                chunk = chunk + self.connection.recv(slen - len(chunk))
+            obj = self.unPickle(chunk)
+            record = logging.makeLogRecord(obj)
+            self.handleLogRecord(record)
+
+    def unPickle(self, data):
+        return pickle.loads(data)
+
+    def handleLogRecord(self, record):
+        # if a name is specified, we use the named logger rather than the one
+        # implied by the record.
+        if self.server.logname is not None:
+            name = self.server.logname
+        else:
+            name = record.name
+
+        record.is_from_worker = True
+        logger = logging.getLogger(name)
+        # N.B. EVERY record gets logged. This is because Logger.handle
+        # is normally called AFTER logger-level filtering. If you want
+        # to do filtering, do it at the client end to save wasting
+        # cycles and network bandwidth!
+        logger.handle(record)
+
+
+class LogRecordReceiver(socketserver.ThreadingTCPServer):
+    """Simple TCP socket-based logging receiver.
+
+    This is a TCP server which listens for traffic. Once a message is received,
+    it is passed to the LogRecordStreamer, which deserializes the message
+    as a LogRecord and then emits the message.
+
+    See https://docs.python.org/3/howto/logging-cookbook.html
+        #sending-and-receiving-logging-events-across-a-network
+    for more information.
+    """
+
+    allow_reuse_address = True
+
+    def __init__(
+        self,
+        host="localhost",
+        port=logging.handlers.DEFAULT_TCP_LOGGING_PORT,
+        handler=LogRecordStreamer,
+    ):
+        socketserver.ThreadingTCPServer.__init__(self, (host, port), handler)
+        self.abort = 0
+        self.timeout = 1
+        self.logname = None
+
+    def serve_until_stopped(self):
+        """Listen for TCP traffic, then handle any requests received."""
+        import select
+
+        abort = 0
+        while not abort:
+            rd, wr, ex = select.select([self.socket.fileno()], [], [], self.timeout)
+            if rd:
+                self.handle_request()
+            abort = self.abort
+
+    @classmethod
+    def start_log_receiver(
+        cls,
+        host: str = "localhost",
+        port: int = logging.handlers.DEFAULT_TCP_LOGGING_PORT,
+    ):
+        """Start the LogRecordReceiver to listen for TCP logging traffic.
+
+        Args:
+            host: The address on which the server is listening
+            port: The port on which the server is listening
+        """
+        server = cls(host, port)
+        server.serve_until_stopped()
+
+
 @oneshot
 def generate_logging_config():
     """Generate the default Ray logging configuration.
@@ -250,8 +437,9 @@ def generate_logging_config():
     used. Otherwise, a simple fallback logging format is used, and a warning message
     is emitted asking the user to install rich for better formatting.
 
-    Args:
-        force: Force reconfiguration of the logging system.
+    In either case, if the handler is run on a worker, it serializes the LogRecord
+    and sends it to the driver via TCP. If the handler is run on the driver, it is
+    emitted as usual.
     """
     formatters = {
         "rich": {
@@ -265,19 +453,20 @@ def generate_logging_config():
         },
     }
     filters = {"context_filter": {"()": ContextFilter}}
-
-    handlers = {"null": {"class": "logging.NullHandler"}}
+    handlers = {
+        "null": {"class": "logging.NullHandler"},
+    }
     if rich:
-        handlers["console"] = {
-            "()": ConsoleHandler,
-            "filters": ["context_filter"],
+        handlers["default"] = {
+            "()": RichRayHandler,
             "formatter": "rich",
+            "filters": ["context_filter"],
         }
     else:
-        handlers["console"] = {
-            "class": "logging.StreamHandler",
-            "filters": ["context_filter"],
+        handlers["default"] = {
+            "()": PlainRayHandler,
             "formatter": "plain",
+            "filters": ["context_filter"],
         }
 
     loggers = {
@@ -285,7 +474,7 @@ def generate_logging_config():
         # to the console
         "ray": {
             "level": "INFO",
-            "handlers": ["console"],
+            "handlers": ["default"],
         },
         # Special handling for ray.rllib: only warning-level messages passed through
         # See https://github.com/ray-project/ray/pull/31858 for related PR

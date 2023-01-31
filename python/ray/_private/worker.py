@@ -90,6 +90,7 @@ from ray.util.scheduling_strategies import PlacementGroupSchedulingStrategy
 from ray.util.tracing.tracing_helper import _import_from_string
 from ray.widgets import Template
 
+
 SCRIPT_MODE = 0
 WORKER_MODE = 1
 LOCAL_MODE = 2
@@ -1686,11 +1687,6 @@ def custom_excepthook(type, value, tb):
 sys.excepthook = custom_excepthook
 
 
-def print_to_stdstream(data):
-    print_file = sys.stderr if data["is_err"] else sys.stdout
-    print_worker_logs(data, print_file)
-
-
 # Start time of this process, used for relative time logs.
 t0 = time.time()
 autoscaler_log_fyi_printed = False
@@ -2125,15 +2121,16 @@ def connect(
         )
         worker.listener_thread.daemon = True
         worker.listener_thread.start()
+
         if log_to_driver:
-            global_worker_stdstream_dispatcher.add_handler(
-                "ray_print_logs", print_to_stdstream
+            # If this is the driver, start a thread which listens for
+            # logs over TCP.
+            worker.log_listener_thread = threading.Thread(
+                target=ray.log.LogRecordReceiver.start_log_receiver,
+                name="ray_listen_for_logs",
+                daemon=True,
             )
-            worker.logger_thread = threading.Thread(
-                target=worker.print_logs, name="ray_print_logs"
-            )
-            worker.logger_thread.daemon = True
-            worker.logger_thread.start()
+            worker.log_listener_thread.start()
 
     if mode == SCRIPT_MODE:
         # TODO(rkn): Here we first export functions to run, then remote
@@ -2186,8 +2183,6 @@ def disconnect(exiting_interpreter=False):
         worker.threads_stopped.clear()
 
         worker._session_index += 1
-
-        global_worker_stdstream_dispatcher.remove_handler("ray_print_logs")
 
     worker.node = None  # Disconnect the worker from the node.
     worker.cached_functions_to_run = []
