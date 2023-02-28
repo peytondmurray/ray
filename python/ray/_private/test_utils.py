@@ -1810,7 +1810,7 @@ def wandb_populate_run_location_hook():
 
 
 def safe_write_to_results_json(
-    result: dict,
+    result: str,
     default_file_name: str = "/tmp/release_test_output.json",
     env_var: Optional[str] = "TEST_OUTPUT_JSON",
 ):
