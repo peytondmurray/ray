@@ -3,7 +3,6 @@ from pathlib import Path
 from importlib import import_module
 import os
 import sys
-from unittest.mock import MagicMock
 from jinja2.filters import FILTERS
 
 sys.path.insert(0, os.path.abspath("."))
@@ -13,24 +12,6 @@ from custom_directives import (
     LinkcheckSummarizer,
     build_gallery,
 )
-
-# Compiled ray modules need to be mocked out; readthedocs doesn't have support for
-# compiling these. See https://readthedocs-lst.readthedocs.io/en/latest/faq.html
-# for more information. Other external dependencies should not be added here.
-# Instead add them to autodoc_mock_imports below.
-mock_modules = [
-    "ray._raylet",
-    "ray.core.generated",
-    "ray.core.generated.common_pb2",
-    "ray.core.generated.runtime_env_common_pb2",
-    "ray.core.generated.gcs_pb2",
-    "ray.core.generated.logging_pb2",
-    "ray.core.generated.ray.protocol.Task",
-    "ray.serve.generated",
-    "ray.serve.generated.serve_pb2",
-    "ray.serve.generated.serve_pb2_grpc",
-]
-sys.modules.update((mod_name, MagicMock()) for mod_name in mock_modules)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -481,6 +462,16 @@ autodoc_mock_imports = [
     "fsspec",
     "skimage",
     "aiohttp",
+    "nevergrad",
+    "dask",
+    "scipy",
+    "numpy",
+    "pandas",
+    "pyarrow",
+    # Internal compiled modules
+    "ray._raylet",
+    "ray.core.generated",
+    "ray.serve.generated",
 ]
 
 
@@ -495,7 +486,23 @@ for mock_target in autodoc_mock_imports:
 # is specified in the `intersphinx_mapping` - for example, types in function signatures
 # that are defined in dependencies can link to their respective documentation.
 intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
     "sklearn": ("https://scikit-learn.org/stable/", None),
+    "nevergrad": ("https://facebookresearch.github.io/nevergrad/", None),
+    "aiohttp": ("https://docs.aiohttp.org/en/stable/", None),
+    "gymnasium": ("https://gymnasium.farama.org/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "torch": ("https://pytorch.org/docs/stable/", None),
+    "transformers": ("https://huggingface.co/docs/transformers/main/en/", None),
+    "pytorch_lightning": ("https://lightning.ai/docs/pytorch/stable/", None),
+    "lightgbm": ("https://lightgbm.readthedocs.io/en/latest/", None),
+    "torchvision": ("https://pytorch.org/vision/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    "dask": ("https://docs.dask.org/en/stable/", None),
+    "distributed": ("https://distributed.dask.org/en/stable/", None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
+    "horovod": ("https://horovod.readthedocs.io/en/stable/", None),
+    "pyarrow": ("https://arrow.apache.org/docs/python", None),
 }
 
 # Ray must not be imported in conf.py because third party modules initialized by
