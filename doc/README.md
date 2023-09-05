@@ -4,11 +4,10 @@ Repository for documentation of the Ray project, hosted at [docs.ray.io](https:/
 
 ## Installation
 
-To build the documentation, make sure you have `ray` installed first.
-For building the documentation locally install the following dependencies:
+To build the documentation, start by installing the "docs" extra PYPI:
 
 ```bash
-pip install -r requirements-doc.txt
+pip install ray[docs]
 ```
 
 ## Building the documentation

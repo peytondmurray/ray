@@ -285,7 +285,35 @@ if setup_spec.type == SetupType.RAY:
             "opentelemetry-sdk",
             "opentelemetry-exporter-otlp",
         ],
+        "docs": [
+            "tune-sklearn @ git+https://github.com/ray-project/tune-sklearn@master", # tune-sklearn docs are hosted together with ray docs
+            "watchfiles", # Required because sphinx-click doesn't support mocking
+
+            "sphinx==4.3.2",
+            "sphinx-click==3.0.2",
+            "sphinx-copybutton==0.4.0",
+            "sphinxemoji==0.2.0",
+            "sphinx-jsonschema==1.17.2",
+            "sphinx-version-warning==1.1.2",
+            "sphinx-book-theme==0.3.3",
+            "sphinx-external-toc==0.2.4",
+            "sphinx-sitemap==2.2.0",
+            "sphinxcontrib-redoc==1.6.0",
+            "sphinx-tabs==3.4.0",
+            "sphinx-remove-toctrees==0.0.3",
+            "autodoc_pydantic==1.6.1",
+            "sphinx_design==0.4.1",
+
+            "Pygments==2.13.0", # Syntax highlighting support
+            "pydantic<2", # Pydantic is required by autodoc_pydantic, but must be <2 for ray
+            "myst-parser==0.15.2",
+            "myst-nb==0.13.1",
+            "jupytext==1.13.6", # Jupyter conversion
+            "urllib3<1.27", # Pin urllib to avoid downstream ssl incompatibility issues
+        ],
     }
+
+    setup_spec.extras["docs"] += setup_spec.extras["default"]
 
     # Ray Serve depends on the Ray dashboard components.
     setup_spec.extras["serve"] = list(

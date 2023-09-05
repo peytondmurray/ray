@@ -330,7 +330,7 @@ install_pip_packages() {
   if [ "${LINT-}" = 1 ]; then
     install_linters
 
-    requirements_files+=("${WORKSPACE_DIR}/doc/requirements-doc.txt")
+    requirements_files+=("${WORKSPACE_DIR}/python/requirements-doc.txt")
   fi
 
   # Additional default doc testing dependencies.
