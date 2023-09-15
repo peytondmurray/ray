@@ -217,7 +217,7 @@ img.horizontal-scroll {
 /* custom css for pre elements */
 pre {
     /* Wrap code blocks instead of horizontal scrolling. */
-    white-space: pre-wrap;
+    white-space: pre;
     box-shadow: none;
     border-color: var(--border-color-gray);
     background-color: var(--background-color-light-gray);

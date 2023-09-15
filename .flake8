@@ -1,15 +1,16 @@
 [flake8]
 exclude =
-  python/ray/core/generated/
+  python/ray/core/generated/*
   doc/source/conf.py
-  python/ray/cloudpickle/
-  python/ray/thirdparty_files/
-  python/ray/_private/runtime_env/agent/thirdparty_files/
-  python/build/
-  python/.eggs/
+  python/ray/cloudpickle/*
+  python/ray/thirdparty_files/*
+  python/ray/_private/runtime_env/agent/thirdparty_files/*
+  python/build/*
+  python/.eggs/*
   python/ray/_private/thirdparty/*
   python/ray/workflow/tests/mock_server.py
   python/ray/serve/tests/test_config_files/syntax_error.py
+  python/ray/serve/generated/*
 max-line-length = 88
 inline-quotes = "
 ignore =
