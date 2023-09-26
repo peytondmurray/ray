@@ -1,106 +1,231 @@
 /* override default colors used in the Sphinx theme */
 :root {
-    --tabs-color-label-active: #0475DE;
-    --tabs-color-label-hover: #0475DE;
-    --buttons-color-blue: #0475DE;
-    --tabs-color-label-inactive: #9E9E9E;
-    --tabs-color-overline: #e0e0e0;
-    --tabs-color-underline: #e0e0e0;
-    --border-color-gray: #e0e0e0;
-    --background-color-light-gray:#fafafa;
-    --background-color-disabled: #9E9E9E;
-    --pst-color-link: 4, 117, 222;
-    --pst-color-primary: 4, 117, 222;
-    --pst-color-text-secondary: #616161;
-    --blue: #0475DE;
-    --sidebar-top: 5em;
+  --tabs-color-label-active: #0475DE;
+  --tabs-color-label-hover: #0475DE;
+  --buttons-color-blue: #0475DE;
+  --tabs-color-label-inactive: #9E9E9E;
+  --tabs-color-overline: #e0e0e0;
+  --tabs-color-underline: #e0e0e0;
+  --border-color-gray: #e0e0e0;
+  --background-color-light-gray:#fafafa;
+  --background-color-disabled: #9E9E9E;
+  --pst-color-link: 4, 117, 222;
+  --pst-color-primary: 4, 117, 222;
+  --pst-color-text-secondary: #616161;
+  --blue: #0475DE;
+  --sidebar-top: 5em;
+  --anyscale-blue: #0641AC;
+  --ray-logo-blue: #028CF0;
+  --ray-navbar-active-border: #007bff;
+  --pst-color-link-hover: var(--ray-logo-blue) !important;
 }
 
-/* Remove flicker for announcement top bar replacement */
-.header-item.announcement {
-    background-color: white;
-    color: white;
-    padding: 0;
+/* Top navbar styling */
+.navbar-toplevel p {
+  margin: 0;
+  padding-inline-start: 0;
+}
+.ref-container > p {
+  height: 100%;
+}
+div.navbar-dropdown {
+  display: none;
+  position: relative;
+  left: -50%;
+  color: var(--pst-color-text-muted);
+}
+span.navbar-link-title {
+  color: var(--pst-color-text-base);
+}
+.navbar-sublevel p a.reference {
+  text-decoration: none;
+  color: var(--pst-color-text-muted);
+}
+.navbar-sublevel p a.reference:hover > span.navbar-link-title {
+  text-decoration: underline;
+  color: var(--pst-color-link-hover);
+}
+.navbar-toplevel li {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 0em 1em;
+}
+ul.navbar-toplevel li:hover > div.navbar-dropdown {
+  display: block;
+}
+ul.navbar-toplevel > li:hover {
+  border-bottom:
+}
+ul.navbar-toplevel {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  height: 100%;
+}
+.navbar-content ul.navbar-sublevel {
+  position: absolute;
+  background: var(--pst-color-on-background);
+  white-space: pre;
+  padding: 0em 1em;
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+  box-shadow: 0 5px 15px 0 rgb(0 0 0 / 10%);
+}
+div.navbar-content a {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  white-space: pre;
+  justify-content: center;
+}
+div.navbar-content {
+  height: 100%;
+}
+nav.navbar-nav {
+  height: 100%;
+}
+.ref-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5em;
+  height: 100%;
+}
+.navbar-header-items__end {
+  /* Prevent the anyscale button from wrapping */
+  flex-flow: nowrap !important;
 }
 
-/* Make the book theme secondary nav stick below the new main top nav */
-.header-article {
-    top: 58px;
-    z-index: 900 !important;
+/* Highlight active nav bar link; offset content to compensate for border size */
+li.active-link {
+  border-bottom: 4px solid var(--ray-logo-blue);
+}
+li.active-link > .ref-container {
+  transform: translateY(2px);
 }
 
-.toctree-l1.has-children {
-    font-weight: bold;
+/* Ray logo */
+.navbar-brand.logo > svg {
+  width: 120px;
+}
+.navbar-brand.logo > svg path#ray-text {
+  fill: var(--pst-color-text-base);
+}
+.navbar-brand.logo > svg path#ray-logo {
+  fill: var(--ray-logo-blue);
 }
 
-.toctree-l2 {
-    font-weight: normal;
+/* Anyscale branding */
+#anyscale-logo > path {
+  fill: var(--anyscale-blue);
+}
+div.try-anyscale {
+  color: var(--pst-color-text-base);
+  background-color: var(--pst-color-surface);
+  border-radius: 6px;
+  white-space: nowrap;
+  padding: 0px 12px;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+  border: 1px solid var(--pst-color-border);
 }
 
-div.navbar-brand-box {
-    padding-top: 4em;
+/* Center the search button in the sidebar */
+div.sidebar-primary-item:nth-child(1) {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 
-td p {
-    margin-left: 0.75rem;
+/* Disable the "Back to top" button that appears if you scroll down */
+button#pst-back-to-top {
+  display: none !important;
 }
 
-table.longtable.table.autosummary {
-    table-layout: fixed;
+/* Hide the rtd-footer-container; we aren't using it */
+#rtd-footer-container {
+  display: none;
 }
 
-.table.autosummary td {
-    width: 100%;
-}
-
-tr.row-odd {
-    background-color: #f9fafb;
-}
-
-/* For Algolia search box
-    * overflow-y: to flow-over horizontally into main content
-    * height: to prevent topbar overlap
-*/
-#site-navigation {
-  overflow-y: auto;
-  height: calc(100vh - var(--sidebar-top));
-  position: sticky;
-  top: var(--sidebar-top) !important;
-}
-
-/* Center the algolia search bar*/
-#search-input {
-    text-align: center;
-}
-.algolia-autocomplete {
-    width: 100%;
-    margin: auto;
-}
-
-/* Hide confusing "<-" back arrow in navigation for larger displays */
-@media (min-width: 768px) {
-    #navbar-toggler {
-        display: none;
-    }
-}
-
-/* Make navigation scrollable on mobile, by making algolia not overflow */
-@media (max-width: 768px) {
-    #site-navigation {
-        overflow-y: scroll;
-    }
-
-    .algolia-autocomplete .ds-dropdown-menu{
-        min-width: 250px;
-    }
-}
-
-/* sphinx-panels overrides the content width to 1140 for large displays.*/
-@media (min-width: 1200px) {
-    .container, .container-lg, .container-md, .container-sm, .container-xl {
-        max-width: 1400px !important;
-    }
-}
+/* /* Remove flicker for announcement top bar replacement */ */
+/* .header-item.announcement { */
+/*     background-color: white; */
+/*     color: white; */
+/*     padding: 0; */
+/* } */
+/**/
+/* /* Make the book theme secondary nav stick below the new main top nav */ */
+/* .header-article { */
+/*     top: 58px; */
+/*     z-index: 900 !important; */
+/* } */
+/**/
+/* .toctree-l1.has-children { */
+/*     font-weight: bold; */
+/* } */
+/**/
+/* .toctree-l2 { */
+/*     font-weight: normal; */
+/* } */
+/**/
+/* div.navbar-brand-box { */
+/*     padding-top: 4em; */
+/* } */
+/**/
+/* /* For Algolia search box */
+/*     * overflow-y: to flow-over horizontally into main content */
+/*     * height: to prevent topbar overlap */
+/* */ */
+/* #site-navigation { */
+/*   overflow-y: auto; */
+/*   height: calc(100vh - var(--sidebar-top)); */
+/*   position: sticky; */
+/*   top: var(--sidebar-top) !important; */
+/* } */
+/**/
+/* /* Center the algolia search bar*/ */
+/* #search-input { */
+/*     text-align: center; */
+/* } */
+/* .algolia-autocomplete { */
+/*     width: 100%; */
+/*     margin: auto; */
+/* } */
+/**/
+/* /* Hide confusing "<-" back arrow in navigation for larger displays */ */
+/* @media (min-width: 768px) { */
+/*     #navbar-toggler { */
+/*         display: none; */
+/*     } */
+/* } */
+/**/
+/* /* Make navigation scrollable on mobile, by making algolia not overflow */ */
+/* @media (max-width: 768px) { */
+/*     #site-navigation { */
+/*         overflow-y: scroll; */
+/*     } */
+/**/
+/*     .algolia-autocomplete .ds-dropdown-menu{ */
+/*         min-width: 250px; */
+/*     } */
+/* } */
+/**/
+/* /* sphinx-panels overrides the content width to 1140 for large displays.*/ */
+/* @media (min-width: 1200px) { */
+/*     .container, .container-lg, .container-md, .container-sm, .container-xl { */
+/*         max-width: 1400px !important; */
+/*     } */
+/* } */
 
 .bottom-right-promo-banner {
     position: fixed;
@@ -115,52 +240,54 @@ tr.row-odd {
     }
 }
 
-@media screen and (max-width: 767px) {
-    .remove-mobile {
-      display: none;
-    }
-  }
+/* @media screen and (max-width: 767px) { */
+/*     .remove-mobile { */
+/*       display: none; */
+/*     } */
+/*   } */
+/**/
+/*   @media screen and (max-width: 767px) { */
+/*     .row-2-column { */
+/*       flex-direction: column; */
+/*       margin-top: 20px; */
+/*     } */
+/*   } */
+/**/
+/* /* Make Algolia search box scrollable */ */
+/* .algolia-autocomplete .ds-dropdown-menu { */
+/*     height: 60vh !important; */
+/*     overflow-y: scroll !important; */
+/* } */
+/**/
+/* .bd-sidebar__content { */
+/*   overflow-y: unset !important; */
+/* } */
+/**/
+/* .bd-sidebar__top { */
+/*     display: flex; */
+/*     flex-direction: column; */
+/* } */
+/**/
+/* .bd-sidebar li { */
+/*     position: relative; */
+/*     word-wrap: break-word; */
+/* } */
+/**/
+/* nav.bd-links { */
+/*     flex: 1; */
+/* } */
+/**/
+/* nav.bd-links::-webkit-scrollbar-thumb { */
+/*     background-color: #ccc; */
+/* } */
+/**/
+/* nav.bd-links::-webkit-scrollbar { */
+/*     width: 5px; */
+/* } */
 
-  @media screen and (max-width: 767px) {
-    .row-2-column {
-      flex-direction: column;
-      margin-top: 20px;
-    }
-  }
-
-/* Make Algolia search box scrollable */
-.algolia-autocomplete .ds-dropdown-menu {
-    height: 60vh !important;
-    overflow-y: scroll !important;
-}
-
-.bd-sidebar__content {
-  overflow-y: unset !important;
-}
-
-.bd-sidebar__top {
-    display: flex;
-    flex-direction: column;
-}
-
-.bd-sidebar li {
-    position: relative;
-    word-wrap: break-word;
-}
-
-nav.bd-links {
-    flex: 1;
-}
-
-nav.bd-links::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-}
-
-nav.bd-links::-webkit-scrollbar {
-    width: 5px;
-}
-
+/* Disable highlight color; it's hard on the eyes */
 dt:target, span.highlighted {
+<<<<<<< HEAD
     background-color: white;
 }
 
@@ -851,65 +978,274 @@ footer.col.footer > p {
     justify-content: center;
 }
 
-#closeChatBtn {
-    border: none;
-    background-color: transparent;
-    color: #000;
-    font-size: 1.2em;
-}
-
-#closeChatBtn:hover {
-    color: #888;
-}
-
-.chatHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.chatContentContainer {
-    padding: 15px;
-    max-height: calc(100% - 80px);
-    overflow-y: auto;
-}
-
-.chatContentContainer input {
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-#result{
-    padding: 15px;
-    border-radius: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    background-color: #f8f9fa;
-    max-height: calc(100% - 20px);
-    overflow-y: auto;
-}
-
-.chatContentContainer textarea {
-    flex-grow: 1;
-    min-width: 50px;
-    max-height: 40px;
-    resize: none;
-}
-
-.searchBtn {
-    white-space: nowrap;
-}
-
-.input-group {
-    display: flex;
-    align-items: stretch;
-}
 
 /* Kapa Ask AI button */
 #kapa-widget-container figure {
     padding: 0 !important;
   }
-  
+
   .mantine-Modal-root figure {
     padding: 0 !important;
   }
+
+/* .searchDiv { */
+/*     width: 100%; */
+/*     position: relative; */
+/*     display: block; */
+/* } */
+/**/
+/* .searchTerm { */
+/*     width: 80%; */
+/*     border: 2px solid var(--blue); */
+/*     padding: 5px; */
+/*     height: 45px; */
+/*     border-radius: 5px; */
+/*     outline: none; */
+/* } */
+/**/
+/* .searchButton { */
+/*     width: 40px; */
+/*     height: 45px; */
+/*     border: 1px solid var(--blue); */
+/*     background: var(--blue); */
+/*     color: #fff; */
+/*     border-radius: 5px; */
+/*     cursor: pointer; */
+/*     font-size: 20px; */
+/* } */
+/**/
+/* /*Resize the wrap to see the search bar change!*/ */
+/* .searchWrap { */
+/*     width: 100%; */
+/*     position: relative; */
+/*     margin: 15px; */
+/*     top: 50%; */
+/*     left: 50%; */
+/*     transform: translate(-50%, -10%); */
+/*     text-align: center; */
+/* } */
+/**/
+/* .sd-card { */
+/*     border: none !important; */
+/* } */
+/**/
+/* .tag { */
+/*     margin-bottom: 5px; */
+/*     font-size: small; */
+/* } */
+/**/
+/* /* Override float positioning of next-prev buttons so that */
+/*  they take up space normally, and we can put other stuff at */
+/*  the bottom of the page. */ */
+/* .prev-next-area { */
+/*   display: flex; */
+/*   flex-direction: row; */
+/* } */
+/* .prev-next-area a.left-prev { */
+/*   margin-right: auto; */
+/*   width: fit-content; */
+/*   float: none; */
+/* } */
+/* .prev-next-area a.right-next { */
+/*   margin-left: auto; */
+/*   width: fit-content; */
+/*   float: none; */
+/* } */
+/**/
+/* /* CSAT widgets */ */
+/* #csat-inputs { */
+/*   display: flex; */
+/*   flex-direction: row; */
+/*   align-items: center; */
+/* } */
+/**/
+/* .csat-hidden { */
+/*   display: none !important; */
+/* } */
+/**/
+/* #csat-feedback-label { */
+/*   color: #000; */
+/*   font-weight: 500; */
+/* } */
+/**/
+/* .csat-button { */
+/*   margin-left: 16px; */
+/*   padding: 8px 16px 8px 16px; */
+/*   border-radius: 4px; */
+/*   border: 1px solid #D2DCE6; */
+/*   background: #FFF; */
+/*   display: flex; */
+/*   flex-direction: row; */
+/*   align-items: center; */
+/*   justify-content: center; */
+/*   cursor: pointer; */
+/*   width: 85px; */
+/* } */
+/**/
+/* #csat-textarea-group { */
+/*   display: flex; */
+/*   flex-direction: column; */
+/* } */
+/**/
+/* #csat-submit { */
+/*   margin-left: auto; */
+/*   font-weight: 700; */
+/*   border: none; */
+/*   margin-top: 12px; */
+/*   cursor: pointer; */
+/* } */
+/**/
+/* #csat-feedback-received { */
+/*   display: flex; */
+/*   flex-direction: row; */
+/*   align-items: center; */
+/*   justify-content: center; */
+/* } */
+/**/
+/* .csat-button-active { */
+/*   border: 1px solid #000; */
+/* } */
+/**/
+/* .csat-icon { */
+/*   margin-right: 4px; */
+/* } */
+/**/
+/* footer.col.footer { */
+/*   display: flex; */
+/*   flex-direction: row; */
+/* } */
+/**/
+/* footer.col.footer > p { */
+/*   margin-left: auto; */
+/* } */
+/**/
+/* #csat { */
+/*   min-width: 60%; */
+/* } */
+/**/
+/* #csat-textarea { */
+/*   resize: none; */
+/* } */
+/**/
+/**/
+/* /* Ray Assistant */ */
+/**/
+/* .container-xl.blurred { */
+/*     filter: blur(5px); */
+/* } */
+/**/
+/* .chat-widget { */
+/*     position: fixed; */
+/*     bottom: 10px; */
+/*     right: 10px; */
+/*     z-index: 1000; */
+/* } */
+/**/
+/* .chat-popup { */
+/*     display: none; */
+/*     position: fixed; */
+/*     top: 20%; */
+/*     left: 50%; */
+/*     transform: translate(-50%, -20%); */
+/*     width: 50%; */
+/*     height: 70%; */
+/*     background-color: white; */
+/*     border: 1px solid #ccc; */
+/*     border-radius: 10px; */
+/*     box-shadow: 0 5px 10px rgba(0,0,0,0.1); */
+/*     z-index: 1001; */
+/*     max-height: 1000px; */
+/*     overflow: hidden; */
+/*     padding-bottom: 40px; */
+/* } */
+/**/
+/* .chatFooter { */
+/*     position: absolute; */
+/*     bottom: 0; */
+/*     right: 0; */
+/*     width: 100%; */
+/*     background-color: #f8f9fa; */
+/* } */
+/**/
+/* #openChatBtn { */
+/*     background-color: #000; */
+/*     color: #fff; */
+/*     width: 70px; */
+/*     height: 70px; */
+/*     border-radius: 10px; */
+/*     border: none; */
+/*     display: flex; */
+/*     align-items: center; */
+/*     justify-content: center; */
+/* } */
+/**/
+/* #closeChatBtn { */
+/*     border: none; */
+/*     background-color: transparent; */
+/*     color: #000; */
+/*     font-size: 1.2em; */
+/* } */
+/**/
+/* #closeChatBtn:hover { */
+/*     color: #888; */
+/* } */
+/**/
+/* .chatHeader { */
+/*     display: flex; */
+/*     justify-content: space-between; */
+/*     align-items: center; */
+/* } */
+/**/
+/* .chatContentContainer { */
+/*     padding: 15px; */
+/*     max-height: calc(100% - 80px); */
+/*     overflow-y: auto; */
+/* } */
+/**/
+/* .chatContentContainer input { */
+/*     margin-top: 10px; */
+/*     margin-bottom: 10px; */
+/* } */
+/**/
+/* #result{ */
+/*     padding: 15px; */
+/*     border-radius: 10px; */
+/*     margin-top: 10px; */
+/*     margin-bottom: 10px; */
+/*     background-color: #f8f9fa; */
+/*     max-height: calc(100% - 20px); */
+/*     overflow-y: auto; */
+/* } */
+/**/
+/* .chatContentContainer textarea { */
+/*     flex-grow: 1; */
+/*     min-width: 50px; */
+/*     max-height: 40px; */
+/*     resize: none; */
+/* } */
+/**/
+/* .searchBtn { */
+/*     white-space: nowrap; */
+/* } */
+/**/
+/* .input-group { */
+/*     display: flex; */
+/*     align-items: stretch; */
+/* } */
+
+/* Nav sidebar styles */
+/* Sidebar checkboxes are toggled by clicking on the label; hide actual checkboxes */
+.sidebar-checkbox {
+  display: none;
+}
+.sidebar-checkbox[type="checkbox"]:checked ~ dd {
+  display: none;
+}
+
+/* Fix some spacing issues associated with competition with PST styles */
+.sidebar-content dl {
+  margin-bottom: 0;
+}
+.sidebar-content ol li > p:first-child, ul li > p:first-child {
+  margin-top: 0 !important;
+}

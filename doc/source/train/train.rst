@@ -3,7 +3,19 @@
 Ray Train: Scalable Model Training
 ==================================
 
-|
+.. toctree::
+    :hidden:
+
+    Overview <overview>
+    PyTorch Guide <getting-started-pytorch>
+    PyTorch Lightning Guide <getting-started-pytorch-lightning>
+    Hugging Face Transformers Guide <getting-started-transformers>
+    more-frameworks
+    User Guides <user-guides>
+    Examples <examples>
+    Benchmarks <benchmarks>
+    api/api
+
 
 .. figure:: images/logo.png
    :align: center
