@@ -6,7 +6,9 @@
 :hidden:
 
 Deploy Ray Serve Apps <user-guides/rayservice>
+user-guides/rayservice-high-availability
 user-guides/observability
+user-guides/upgrade-guide
 user-guides/k8s-cluster-setup
 user-guides/storage
 user-guides/config
@@ -18,6 +20,7 @@ user-guides/gpu
 user-guides/rayserve-dev-doc
 user-guides/pod-command
 user-guides/pod-security
+user-guides/helm-chart-rbac
 user-guides/tls
 user-guides/k8s-autoscaler
 user-guides/static-ray-cluster-without-kuberay

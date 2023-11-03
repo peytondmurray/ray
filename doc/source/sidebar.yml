@@ -281,7 +281,9 @@
           sections:
             - file: cluster/kubernetes/user-guides/rayservice
               title: Deploy Ray Serve Apps
+            - file: cluster/kubernetes/user-guides/rayservice-high-availability
             - file: cluster/kubernetes/user-guides/observability
+            - file: cluster/kubernetes/user-guides/upgrade-guide
             - file: cluster/kubernetes/user-guides/k8s-cluster-setup
               sections:
                 - file: cluster/kubernetes/user-guides/aws-eks-gpu-cluster
@@ -296,6 +298,7 @@
             - file: cluster/kubernetes/user-guides/rayserve-dev-doc
             - file: cluster/kubernetes/user-guides/pod-command
             - file: cluster/kubernetes/user-guides/pod-security
+            - file: cluster/kubernetes/user-guides/helm-chart-rbac
             - file: cluster/kubernetes/user-guides/tls
             - file: cluster/kubernetes/user-guides/k8s-autoscaler
             - file: cluster/kubernetes/user-guides/static-ray-cluster-without-kuberay
