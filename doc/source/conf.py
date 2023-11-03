@@ -663,6 +663,11 @@ def add_collapse_checkboxes(input_soup: bs4.BeautifulSoup) -> bs4.BeautifulSoup:
     return soup
 
 
+def add_custom_css(app, pagename, templatename, context, doctree):
+    if pagename == "train/train":
+        app.add_css_file("css/ray-train.css")
+
+
 def setup(app):
     # NOTE: 'MOCK' is a custom option we introduced to illustrate mock outputs. Since
     # `doctest` doesn't support this flag by default, `sphinx.ext.doctest` raises
@@ -677,6 +682,8 @@ def setup(app):
     app.connect("config-inited", parse_sidebar_config)
     app.connect("config-inited", parse_navbar_config)
     app.connect("html-page-context", setup_context)
+
+    app.connect("html-page-context", add_custom_css)
 
     app.add_js_file("js/splash.js")
     # app.add_js_file(

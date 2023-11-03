@@ -1,0 +1,8 @@
+#train-logo > path, #train-logo > circle {
+  stroke: var(--ray-blue);
+  /* stroke-width: 10px; */
+}
+
+#train-logo-text {
+  stroke: var(--pst-color-text-base);
+}

@@ -21,6 +21,8 @@ html {
   --anyscale-blue: #0641AC;
   --ray-logo-blue: #028CF0;
   --ray-navbar-active-border: #007bff;
+  --ray-train-logo-blue: #00A2EA;
+  --ray-blue: #3C8AE9; /* Ray blue color - use this for all ray branding */
   --pst-color-link-hover: var(--ray-logo-blue) !important;
 
   /* Transparent highlight color; default yellow is hard on the eyes */
