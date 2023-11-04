@@ -57,7 +57,6 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinxcontrib.autodoc_pydantic",
     "sphinxcontrib.redoc",
-    "sphinx_tabs.tabs",
     "sphinx_remove_toctrees",
     "sphinx_design",
     "sphinx.ext.intersphinx",
@@ -666,6 +665,14 @@ def add_collapse_checkboxes(input_soup: bs4.BeautifulSoup) -> bs4.BeautifulSoup:
 def add_custom_css(app, pagename, templatename, context, doctree):
     if pagename == "train/train":
         app.add_css_file("css/ray-train.css")
+    elif pagename == "index":
+        # CSS for HTML part of index.html
+        app.add_css_file("css/splash.css")
+        app.add_js_file("js/splash.js")
+    elif pagename == "ray-overview/examples":
+        # Example gallery
+        app.add_js_file("js/tags.js")
+
 
 
 def setup(app):
@@ -685,16 +692,6 @@ def setup(app):
 
     app.connect("html-page-context", add_custom_css)
 
-    app.add_js_file("js/splash.js")
-    # app.add_js_file(
-    #     "https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js",
-    #     defer="defer",
-    # )
-    # app.add_css_file(
-    #     "https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css"
-    # )
-
-    # app.add_js_file("js/docsearch.js", defer="defer")
     # app.add_js_file("js/csat.js", defer="defer")
 
     # https://github.com/ines/termynal
@@ -704,8 +701,6 @@ def setup(app):
     # app.add_js_file("js/custom.js", defer="defer")
     app.add_css_file("css/custom.css", priority=800)
 
-    app.add_css_file("css/splash.css")  # CSS for HTML part of index.html
-    app.add_js_file("js/tags.js")  # JS for example gallery
 
     # app.add_js_file("js/top-navigation.js", defer="defer")
 
