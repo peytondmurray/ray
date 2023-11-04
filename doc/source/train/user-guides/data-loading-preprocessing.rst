@@ -291,11 +291,11 @@ For more details, see the following sections for each framework.
 
         **Option 2 (without Ray Data):** Instantiate the Hugging Face Dataset directly in the ``train_loop_per_worker``.
 
-    .. tip::
+.. tip::
 
-        When using Torch or Hugging Face Datasets directly without Ray Data, make sure to instantiate your Dataset *inside* the ``train_loop_per_worker``.
-        Instatiating the Dataset outside of the ``train_loop_per_worker`` and passing it in via global scope
-        can cause errors due to the Dataset not being serializable.
+    When using Torch or Hugging Face Datasets directly without Ray Data, make sure to instantiate your Dataset *inside* the ``train_loop_per_worker``.
+    Instatiating the Dataset outside of the ``train_loop_per_worker`` and passing it in via global scope
+    can cause errors due to the Dataset not being serializable.
 
 .. _train-datasets-split:
 
