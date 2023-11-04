@@ -17,8 +17,12 @@ Ray Train: Scalable Model Training
     api/api
 
 
-.. raw:: html
-   :file: images/logo.svg
+.. div:: sd-d-flex-row sd-align-major-center sd-align-minor-center
+
+    .. div:: sd-w-50
+
+        .. raw:: html
+           :file: images/logo.svg
 
 
 Ray Train is a scalable machine learning library for distributed training and fine-tuning.
