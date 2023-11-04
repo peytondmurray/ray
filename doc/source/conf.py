@@ -675,7 +675,6 @@ def add_custom_css(app, pagename, templatename, context, doctree):
         app.add_js_file("js/tags.js")
 
 
-
 def setup(app):
     # NOTE: 'MOCK' is a custom option we introduced to illustrate mock outputs. Since
     # `doctest` doesn't support this flag by default, `sphinx.ext.doctest` raises
@@ -701,7 +700,6 @@ def setup(app):
 
     # app.add_js_file("js/custom.js", defer="defer")
     app.add_css_file("css/custom.css", priority=800)
-
 
     # app.add_js_file("js/top-navigation.js", defer="defer")
 
