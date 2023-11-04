@@ -29,6 +29,11 @@ html {
   --pst-color-target: #FFFFFF00 !important;
 }
 
+/* Hide the "Hide Search Matches" button (we aren't highlighting search terms anyway) */
+#searchbox {
+  display: none;
+}
+
 /* Top navbar styling */
 .navbar-toplevel p {
   margin: 0;
