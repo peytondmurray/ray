@@ -312,6 +312,7 @@ html_context = {
     "github_user": "ray-project",
     "github_repo": "ray",
     "github_version": "master",
+    "doc_path": "doc/source/",
 }
 
 html_sidebars = {
