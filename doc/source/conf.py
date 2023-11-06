@@ -319,6 +319,9 @@ html_sidebars = {
     "**": [
         "search-button-field",
         "main-sidebar",
+    ],
+    "ray-overview/examples": [
+        "examples-sidebar"
     ]
 }
 
@@ -672,6 +675,7 @@ def add_custom_css(app, pagename, templatename, context, doctree):
         app.add_js_file("js/splash.js")
     elif pagename == "ray-overview/examples":
         # Example gallery
+        app.add_css_file("css/examples.css")
         app.add_js_file("js/tags.js")
 
 
