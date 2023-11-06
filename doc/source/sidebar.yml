@@ -21,6 +21,15 @@
       title: "Key Concepts"
     - file: ray-core/user-guide
       title: "User Guides"
+      sections:
+        - file: ray-core/tasks
+        - file: ray-core/actors
+        - file: ray-core/objects
+        - file: ray-core/handling-dependencies
+        - file: ray-core/scheduling/index
+        - file: ray-core/fault-tolerance
+        - file: ray-core/patterns/index
+        - file: ray-core/advanced-topics
     - file: ray-core/examples/overview
       title: "Examples"
       sections:

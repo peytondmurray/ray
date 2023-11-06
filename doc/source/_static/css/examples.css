@@ -63,32 +63,46 @@
   opacity: 1;
 }
 
+/* Tag button styling */
 .tag-group {
   display: flex;
   flex-flow: wrap;
+  gap: 0em 0.5em;
 }
-
 .tag {
-    margin-bottom: 5px;
-    font-size: small;
-    background-color: var(--pst-color-on-background);
-    border: 1px solid var(--pst-color-border);
-    border-radius: 14px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    width: fit-content;
-    gap: 1em;
+  margin-bottom: 5px;
+  font-size: small;
+  background-color: var(--pst-color-on-background);
+  border: 1px solid var(--pst-color-border);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: fit-content;
+  gap: 0.5em;
+  color: var(--pst-color-text-base);
+  padding: 3px 12px 3px 12px;
+  line-height: 20px;
 }
 
 .tag > svg > path {
   fill: var(--pst-color-text-base);
 }
+.tag:hover {
+  background-color: var(--pst-color-info-highlight) !important;
+  color: var(--pst-color-info-text) !important;
+}
+.tag:hover > svg > path {
+  fill: var(--pst-color-info-text) !important;
+}
 
+/* Selected tag buttons */
+.tag.btn-primary {
+  background-color: var(--pst-color-info-bg);
+}
+/* Inactive tag buttons */
 .tag.btn-outline-primary {
-  color: var(--pst-color-text-base);
-  padding: 3px 12px 3px 12px;
-  line-height: 20px;
+  background-color: var(--pst-color-on-background);
 }
 
 div.sd-container-fluid.docutils > div {
@@ -108,9 +122,10 @@ div.gallery-item {
   width: auto;
 }
 
+/* Override sphinx-design box shadow styles */
 div.gallery-item > div.sd-card {
-  border-radius: 8px;
-  box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 .125rem .25rem var(--pst-color-shadow) !important;
+  border: none;
 }
 
 /* Example gallery "Tutorial" title */
@@ -169,11 +184,4 @@ div.sd-card-title > span.sd-bg-info.sd-bg-text-info {
 
 #noMatches.hidden,.gallery-item.hidden {
   display: none !important;
-}
-
-.btn-primary {
-  color: var(--ray-blue);
-  background: var(--pst-color);
-  padding: 3px 12px 3px 12px;
-  border: 1px solid var(--pst-color-border);
 }

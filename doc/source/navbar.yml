@@ -27,7 +27,7 @@
       caption: Scale reinforcement learning
 - file: index
   title: "Docs"
-- file: index
+- link: https://discuss.ray.io
   title: "Resources"
   sections:
     - link: https://discuss.ray.io

@@ -306,6 +306,10 @@ html_theme_options = {
     "navbar_persistent": [
         "theme-switcher",
     ],
+    "secondary_sidebar_items": [
+        "page-toc",
+        "edit-this-page",
+    ],
 }
 
 html_context = {
@@ -676,7 +680,7 @@ def add_custom_css(app, pagename, templatename, context, doctree):
     elif pagename == "ray-overview/examples":
         # Example gallery
         app.add_css_file("css/examples.css")
-        app.add_js_file("js/tags.js")
+        app.add_js_file("js/examples.js")
 
 
 def setup(app):
