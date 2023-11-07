@@ -1260,3 +1260,12 @@ button#pst-back-to-top {
 .sidebar-content ol li > p:first-child, ul li > p:first-child {
   margin-top: 0 !important;
 }
+
+/* Set autosummary API docs to have fixed two-col format, with alternating different background on
+* rows */
+table.autosummary {
+  table-layout: fixed;
+}
+table.autosummary .row-odd {
+  background-color: var(--pst-color-surface);
+}
