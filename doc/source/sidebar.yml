@@ -55,6 +55,20 @@
       title: Overview
     - file: data/key-concepts
     - file: data/user-guide
+      sections:
+        - file: data/loading-data
+        - file: data/loading-data
+        - file: data/transforming-data
+        - file: data/inspecting-data
+        - file: data/iterating-over-data
+        - file: data/saving-data
+        - file: data/working-with-images
+        - file: data/working-with-text
+        - file: data/working-with-tensors
+        - file: data/working-with-pytorch
+        - file: data/batch_inference
+        - file: data/performance-tips
+        - file: data/preprocessors
     - file: data/examples/index
     - file: data/api/api
     - file: data/data-internals
