@@ -310,6 +310,9 @@ html_theme_options = {
         "page-toc",
         "edit-this-page",
     ],
+    "content_footer_items": [
+        "csat",
+    ]
 }
 
 html_context = {
@@ -700,7 +703,8 @@ def setup(app):
 
     app.connect("html-page-context", add_custom_css)
 
-    # app.add_js_file("js/csat.js", defer="defer")
+    app.add_js_file("js/csat.js")
+    app.add_css_file("css/csat.css")
 
     # https://github.com/ines/termynal
     app.add_js_file("js/termynal.js", defer="defer")
