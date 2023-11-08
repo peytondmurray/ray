@@ -34,16 +34,21 @@ chatPopupDiv.innerHTML = `
 `
 document.body.appendChild(chatPopupDiv);
 
+const blurDiv = document.createElement('div')
+blurDiv.id = "blurDiv"
+blurDiv.classList.add("blurDiv-hidden")
+document.body.appendChild(blurDiv);
+
 // blur background when chat popup is open
 document.getElementById('openChatBtn').addEventListener('click', function() {
-    document.getElementById('chatPopup').style.display = 'block';
-    document.querySelector('.container-xl').classList.add('blurred');
+  document.getElementById('chatPopup').style.display = 'block';
+  blurDiv.classList.remove("blurDiv-hidden");
 });
 
 // un-blur background when chat popup is closed
 document.getElementById('closeChatBtn').addEventListener('click', function() {
-    document.getElementById('chatPopup').style.display = 'none';
-    document.querySelector('.container-xl').classList.remove('blurred');
+  document.getElementById('chatPopup').style.display = 'none';
+  blurDiv.classList.add("blurDiv-hidden");
 });
 
 // set code highlighting options

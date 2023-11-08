@@ -30,7 +30,7 @@
   border: 1px solid var(--pst-color-border);
   border-radius: 10px;
   box-shadow: 0 5px 10px var(--pst-color-shadow);
-  z-index: 1001;
+  z-index: 1032;
   max-height: 1000px;
   overflow: hidden;
   padding-bottom: 40px;
@@ -77,10 +77,9 @@
   justify-content: space-between;
   align-items: center;
   padding: .5rem;
-  display: flex;
 }
 
-.chatheader > .header-wrapper {
+.chatHeader > .header-wrapper {
   text-align: center;
   width: 100%;
 }
@@ -120,4 +119,18 @@
 .input-group {
     display: flex;
     align-items: stretch;
+}
+
+#blurDiv {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  backdrop-filter: blur(5px);
+  z-index: 1031;
+}
+
+#blurDiv.blurDiv-hidden {
+  display: none !important;
 }
