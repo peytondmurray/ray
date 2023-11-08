@@ -28,24 +28,24 @@ window.addEventListener("scroll", loadVisibleTermynals);
 createTermynals();
 loadVisibleTermynals();
 
-// Dynamically adjust the height of all panel elements in a gallery to be the same as
-// that of the max-height element.
-document.addEventListener("DOMContentLoaded", function() {
-  let images = document.getElementsByClassName("fixed-height-img");
-  let maxHeight = 0;
-
-  for (let i = 0; i < images.length; i++) {
-    if (images[i].height > maxHeight) {
-      maxHeight = images[i].height;
-    }
-  }
-
-  for (let i = 0; i < images.length; i++) {
-    let margin = Math.floor((maxHeight - images[i].height) / 2);
-    images[i].style.cssText = "margin-top: " + margin + "px !important;" +
-        "margin-bottom: " + margin + "px !important;"
-  }
-});
+// // Dynamically adjust the height of all panel elements in a gallery to be the same as
+// // that of the max-height element.
+// document.addEventListener("DOMContentLoaded", function() {
+//   let images = document.getElementsByClassName("fixed-height-img");
+//   let maxHeight = 0;
+//
+//   for (let i = 0; i < images.length; i++) {
+//     if (images[i].height > maxHeight) {
+//       maxHeight = images[i].height;
+//     }
+//   }
+//
+//   for (let i = 0; i < images.length; i++) {
+//     let margin = Math.floor((maxHeight - images[i].height) / 2);
+//     images[i].style.cssText = "margin-top: " + margin + "px !important;" +
+//         "margin-bottom: " + margin + "px !important;"
+//   }
+// });
 
 // // Remember the scroll position when the page is unloaded.
 // window.onload = function() {

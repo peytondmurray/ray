@@ -20,7 +20,6 @@ from custom_directives import (
     DownloadAndPreprocessEcosystemDocs,
     update_context,
     LinkcheckSummarizer,
-    build_gallery,
 )
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -700,19 +699,21 @@ def setup(app):
     app.connect("config-inited", parse_sidebar_config)
     app.connect("config-inited", parse_navbar_config)
     app.connect("html-page-context", setup_context)
-
     app.connect("html-page-context", add_custom_css)
-
-    app.add_js_file("js/csat.js")
-    app.add_css_file("css/csat.css")
 
     # https://github.com/ines/termynal
     app.add_js_file("js/termynal.js", defer="defer")
     app.add_css_file("css/termynal.css")
 
-    # app.add_js_file("js/custom.js", defer="defer")
+    app.add_js_file("js/custom.js", defer="defer")
     app.add_css_file("css/custom.css", priority=800)
 
+    app.add_js_file("js/csat.js")
+    app.add_css_file("css/csat.css")
+
+    app.add_js_file("js/assistant.js", defer="defer")
+
+    # Get rid of this
     # app.add_js_file("js/top-navigation.js", defer="defer")
 
     base_path = Path(__file__).parent
@@ -726,9 +727,6 @@ def setup(app):
     linkcheck_summarizer = LinkcheckSummarizer()
     app.connect("builder-inited", linkcheck_summarizer.add_handler_to_linkcheck)
     app.connect("build-finished", linkcheck_summarizer.summarize)
-
-    # Create galleries on the fly
-    app.connect("builder-inited", build_gallery)
 
 
 redoc = [
