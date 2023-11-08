@@ -11,27 +11,26 @@ var chatPopupDiv = document.createElement("div");
 chatPopupDiv.className = "chat-popup";
 chatPopupDiv.id = "chatPopup";
 chatPopupDiv.innerHTML = `
-    <div class="chatHeader bg-light p-2 d-flex justify-content-between align-items-center">
-        <div style="width: 30px;"></div>
-        <div class="text-center w-100">
-            <b>Ray Docs AI - Ask a question</b>
-        </div>
-        <button id="closeChatBtn" class="btn">
-            <i class="fas fa-times"></i>
-        </button>
+  <div class="chatHeader">
+    <div class="header-wrapper">
+      <h3>Ray Docs AI - Ask a question</h3>
     </div>
-    <div class="chatContentContainer">
-        <div class="input-group">
-            <textarea id="searchBar" class="input" rows="3" placeholder="Do not include any personal or confidential information."></textarea>
-            <div class="input-group-append">
-                <button id="searchBtn" class="btn btn-primary">Ask AI</button>
-            </div>
-        </div>
-        <div id="result"></div>
+    <button id="closeChatBtn" class="btn">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="chatContentContainer">
+    <div class="input-group">
+      <textarea id="searchBar" class="input" rows="3" placeholder="Do not include any personal or confidential information."></textarea>
+      <div class="input-group-append">
+        <button id="searchBtn" class="btn btn-primary">Ask AI</button>
+      </div>
     </div>
-    <div class="chatFooter text-right p-2">
-        © Copyright 2023, The Ray Team.
-    </div>
+    <div id="result"></div>
+  </div>
+  <div class="chatFooter text-right p-2">
+    © Copyright 2023, The Ray Team.
+  </div>
 `
 document.body.appendChild(chatPopupDiv);
 

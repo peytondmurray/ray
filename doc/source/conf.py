@@ -714,9 +714,7 @@ def setup(app):
     app.add_css_file("css/csat.css")
 
     app.add_js_file("js/assistant.js", defer="defer")
-
-    # Get rid of this
-    # app.add_js_file("js/top-navigation.js", defer="defer")
+    app.add_css_file("css/assistant.css")
 
     base_path = Path(__file__).parent
     github_docs = DownloadAndPreprocessEcosystemDocs(base_path)
