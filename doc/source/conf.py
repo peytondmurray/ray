@@ -683,6 +683,8 @@ def add_custom_css(app, pagename, templatename, context, doctree):
         # Example gallery
         app.add_css_file("css/examples.css")
         app.add_js_file("js/examples.js")
+    elif pagename == "ray-overview/ray-libraries":
+        app.add_css_file("css/ray-libraries.css")
 
 
 def setup(app):
