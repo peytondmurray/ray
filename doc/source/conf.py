@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, Union, List, Iterable
 import copy
 import yaml
 from datetime import datetime
@@ -13,6 +13,7 @@ from sphinx.util.nodes import make_refnode
 from docutils import nodes
 import pathlib
 import bs4
+from sphinx.environment.adapters.toctree import TocTree
 
 
 sys.path.insert(0, os.path.abspath("."))
@@ -432,12 +433,15 @@ def parse_navbar_config(app: sphinx.application.Sphinx, config: sphinx.config.Co
     if filename:
         with open(pathlib.Path(__file__).parent / filename, "r") as f:
             config.navbar_content = yaml.safe_load(f)
-
     else:
         config.navbar_content = None
 
 
-NavEntry = Dict[str, Union[str, list["NavEntry"]]]
+NavEntry = Dict[str, Union[str, List["NavEntry"]]]
+
+
+def insert_sidebar_link(pagename: str, ancestors: List[str], sidebar: List[NavEntry]):
+    pass
 
 
 def setup_context(app, pagename, templatename, context, doctree):
@@ -518,14 +522,20 @@ def setup_context(app, pagename, templatename, context, doctree):
         str
             Content to be rendered in the side nav bar
         """
+        app, pagename, templatename, context, doctree
         if not hasattr(app.config, "sidebar_content"):
             raise ValueError(
                 "A template is attempting to call render_sidebar_nav(); a "
                 "sidebar configuration must be specified."
             )
 
+        toctree = TocTree(app.env)
+        ancestors = toctree.get_toctree_ancestors(pagename)
+        sidebar = app.config.sidebar_content
+        insert_sidebar_link(pagename, ancestors, sidebar)
+
         node = nodes.container(classes=["sidebar-content"])
-        node.append(render_sidebar_nodes(app.config.sidebar_content))
+        node.append(render_sidebar_nodes(sidebar))
         nav_soup = bs4.BeautifulSoup(
             app.builder.render_partial(node)["fragment"], "html.parser"
         )

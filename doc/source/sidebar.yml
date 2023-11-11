@@ -8,7 +8,6 @@
   title: "Use Cases"
   sections:
     - file: ray-air/getting-started
-
 - file: ray-overview/examples
   title: "Example Gallery"
 - file: ray-overview/ray-libraries
@@ -56,7 +55,6 @@
     - file: data/key-concepts
     - file: data/user-guide
       sections:
-        - file: data/loading-data
         - file: data/loading-data
         - file: data/transforming-data
         - file: data/inspecting-data
