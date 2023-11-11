@@ -14,6 +14,9 @@ from docutils import nodes
 import pathlib
 import bs4
 from sphinx.environment.adapters.toctree import TocTree
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 sys.path.insert(0, os.path.abspath("."))
@@ -440,8 +443,106 @@ def parse_navbar_config(app: sphinx.application.Sphinx, config: sphinx.config.Co
 NavEntry = Dict[str, Union[str, List["NavEntry"]]]
 
 
+def contains_page(pagename: str, navs: List[NavEntry]) -> bool:
+
+    subnavs = []
+    for nav in navs:
+        if nav['file'] == pagename:
+            return True
+        elif 'sections' in nav:
+            subnavs.append(nav)
+
+    return any([contains_page(pagename, nav['sections']) for nav in subnavs])
+
+
+# ray-overview/ray-libraries/foo
+# [ray-overview/ray-libraries/foo, ray-overview/ray-libraries, ray-overview]
+# [
+#   ray-overview/index,
+#   ray-overview/getting-started,
+#   ray-overview/installation,
+#   ray-overview/use-cases,
+#   ray-overview/examples,
+#   ray-overview/ray-libraries,
+#   ray-core/walkthrough,
+#   data/data,
+#   train/train,
+#   tune/index,
+#   serve/index,
+#   rllib/index,
+#   ray-more-libs/index,
+#   cluster/getting-started,
+#   ray-observability/index,
+#   ray-contribute/index,
+#   ray-references/glossary,
+#   ray-security/index,
+# ]
+
+
+# pagename = 'tune/api/doc/ray.tune.search.hebo.HEBOSearch.save',
+# ancestors = [
+#     'tune/api/doc/ray.tune.search.hebo.HEBOSearch.save',
+#     'tune/api/doc/ray.tune.search.hebo.HEBOSearch',
+#     'tune/api/suggestion',
+#     'tune/api/api',
+#     'tune/index'
+# ]
+
+# def find_nearest_naventry(
+
+def insert_nav(
+    pagename: str, ancestors: List[str], nav: NavEntry,
+):
+    # If the pagename is the current NavEntry, do nothing
+    if nav['file'] == pagename:
+        return
+
+    # If the NavEntry doesn't have any subsections, recursively insert
+    # the ancestors and then the page itself
+    if 'sections' not in nav:
+        nav['sections'] = []
+
+        newnav = nav
+        for i, ancestor in enumerate(reversed(ancestors)):
+            newnav = {
+                'file': ancestor
+            }
+
+            newnav
+
+
+
+
+    sections = nav.get('sections', [])
+
+    for ancestor in ancestors:
+        for section in sections:
+            if section['file'] == ancestor:
+                return insert_nav(pagename, ancestors, section)
+
+
+            # if section['file'] == pagename:
+            #     return None
+            # elif nav['file'] == ancestor:
+            #     if 'sections' in nav:
+            #         return find_nearest_naventry(pagename, ancestors, nav['sections'])
+            #     else:
+            #         return nav
+
+
+
+
+
 def insert_sidebar_link(pagename: str, ancestors: List[str], sidebar: List[NavEntry]):
-    pass
+
+    if pagename == 'tune/api/doc/ray.tune.search.hebo.HEBOSearch.save':
+        breakpoint()
+    if contains_page(pagename, sidebar):
+        return
+    else:
+        logger.warning(f"Cannot find {pagename} in sidebar config.")
+        return
+
 
 
 def setup_context(app, pagename, templatename, context, doctree):
