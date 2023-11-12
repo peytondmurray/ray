@@ -1,4 +1,4 @@
-from typing import Dict, Union, List, Iterable
+from typing import List
 import copy
 import yaml
 from datetime import datetime
@@ -20,13 +20,12 @@ logger = logging.getLogger(__name__)
 
 
 sys.path.insert(0, os.path.abspath("."))
-from custom_directives import (
+from custom_directives import (  # noqa
     DownloadAndPreprocessEcosystemDocs,
     update_context,
     LinkcheckSummarizer,
 )
-
-from nav import Nav, NavEntry
+from nav import Nav, NavEntry  # noqa
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -149,7 +148,7 @@ sphinx_tabs_disable_tab_closing = True
 # Special mocking of packaging.version.Version is required when using sphinx;
 # we can't just add this to autodoc_mock_imports, as packaging is imported by
 # sphinx even before it can be mocked. Instead, we patch it here.
-import packaging.version as packaging_version
+import packaging.version as packaging_version  # noqa
 
 Version = packaging_version.Version
 
@@ -424,10 +423,9 @@ def parse_sidebar_config(app: sphinx.application.Sphinx, config: sphinx.config.C
 
     if filename:
         with open(pathlib.Path(__file__).parent / filename, "r") as f:
-            sb = Nav(yaml.safe_load(f))
-            config.sidebar_content = sb
+            config.sidebar_nav = Nav(yaml.safe_load(f))
     else:
-        config.sidebar_content = None
+        config.sidebar_nav = None
 
 
 def parse_navbar_config(app: sphinx.application.Sphinx, config: sphinx.config.Config):
@@ -443,20 +441,8 @@ def parse_navbar_config(app: sphinx.application.Sphinx, config: sphinx.config.Co
         config.navbar_content = None
 
 
-def contains_page(pagename: str, navs: List[NavEntry]) -> bool:
-
-    subnavs = []
-    for nav in navs:
-        if nav['file'] == pagename:
-            return True
-        elif 'sections' in nav:
-            subnavs.append(nav)
-
-    return any([contains_page(pagename, nav['sections']) for nav in subnavs])
-
-
 def setup_context(app, pagename, templatename, context, doctree):
-    def render_sidebar_nodes(obj: list[NavEntry]):
+    def render_sidebar_nodes(obj: List[NavEntry]):
         """Render a tree of elements for a sidebar from a given dictionary input.
 
         This code largely follows the output of sphinx-external-toc.
@@ -540,12 +526,13 @@ def setup_context(app, pagename, templatename, context, doctree):
                 "sidebar configuration must be specified."
             )
 
-        ancestors = list(reversed(TocTree(app.env).get_toctree_ancestors(pagename)))
-        sidebar = app.config.sidebar_content
-        sidebar.insert(ancestors)
+        # ancestors = list(reversed(TocTree(app.env).get_toctree_ancestors(pagename)))
+        # sidebar = app.config.sidebar_content
+        # sidebar.insert(ancestors)
 
         node = nodes.container(classes=["sidebar-content"])
-        node.append(render_sidebar_nodes(sidebar.tree))
+        # node.append(render_sidebar_nodes(sidebar.tree))
+        node.append(render_sidebar_nodes(app.config.sidebar_content))
         nav_soup = bs4.BeautifulSoup(
             app.builder.render_partial(node)["fragment"], "html.parser"
         )
@@ -707,6 +694,18 @@ def add_custom_css(app, pagename, templatename, context, doctree):
         app.add_css_file("css/ray-libraries.css")
 
 
+def setup_env(app, env, docnames, other):
+
+    sidebar = app.config.sidebar_nav
+    toctree = TocTree(env)
+    breakpoint()
+    for doc in docnames:
+        ancestors = list(reversed(toctree.get_toctree_ancestors(doc)))
+        sidebar.insert(ancestors)
+
+    app.config.sidebar_content = sidebar.tree
+
+
 def setup(app):
     # NOTE: 'MOCK' is a custom option we introduced to illustrate mock outputs. Since
     # `doctest` doesn't support this flag by default, `sphinx.ext.doctest` raises
@@ -720,6 +719,7 @@ def setup(app):
     app.add_config_value("navbar_content_path", "navbar.yml", "env")
     app.connect("config-inited", parse_sidebar_config)
     app.connect("config-inited", parse_navbar_config)
+    app.connect("env-merge-info", setup_env)
     app.connect("html-page-context", setup_context)
     app.connect("html-page-context", add_custom_css)
 
