@@ -340,6 +340,10 @@ def setup_context(app, pagename, templatename, context, doctree):
         """Render external header links into the top nav bar.
         The structure rendered here is defined in an external yaml file.
 
+        This is done so that the appropriate links can be highlighted for the
+        current page, following basically the same approach as pydata-sphinx-theme
+        takes in rendering the toctree into the primary sidebar.
+
         Returns
         -------
         str
