@@ -72,4 +72,4 @@ OpenAPI Documentation (Beta)
 
 We provide an OpenAPI specification for the Ray Job API. You can use this to generate client libraries for other languages.
 
-View the `Ray Jobs REST API OpenAPI documentation <api.html>`_.
+.. openapi:: ./openapi.yml

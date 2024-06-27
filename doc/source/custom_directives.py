@@ -27,6 +27,8 @@ from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 
+from sphinxcontrib.openapi.renderers import HttpdomainRenderer
+
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +50,40 @@ EXAMPLE_GALLERY_CONFIGS = [
     "source/serve/examples.yml",
     "source/train/examples.yml",
 ]
+
+
+def indented(generator, indent=3):
+    for item in generator:
+        if item:
+            item = " " * indent + item
+        yield item
+
+
+class RayOpenAPIRenderer(HttpdomainRenderer):
+    def render_operation(self, endpoint, method, operation):
+        """Render OAS operation item."""
+        yield f".. http:{method}:: {endpoint}"
+
+        if operation.get("deprecated"):
+            yield "   :deprecated:"
+        yield ""
+
+        if operation.get("summary"):
+            yield f"   **{operation['summary'].strip()}**"
+            yield ""
+
+        if operation.get("description"):
+            yield from indented(
+                self._convert_markup(operation["description"]).strip().splitlines()
+            )
+            yield ""
+
+        yield from indented(self.render_parameters(operation.get("parameters", [])))
+        if "requestBody" in operation:
+            yield from indented(
+                self.render_request_body(operation["requestBody"], endpoint, method)
+            )
+        yield from indented(self.render_responses(operation["responses"]))
 
 
 def feedback_form_url(project, page):

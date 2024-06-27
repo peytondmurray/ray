@@ -10,7 +10,7 @@ sphinx-copybutton==0.5.2
 sphinxemoji==0.2.0
 sphinx-jsonschema==1.19.1
 sphinx-sitemap==2.5.1
-sphinxcontrib-redoc==1.6.0
+sphinxcontrib-openapi==0.8.4
 sphinx-remove-toctrees==0.0.3
 sphinx_design==0.5.0
 pydata-sphinx-theme==0.14.1

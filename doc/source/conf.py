@@ -20,6 +20,7 @@ from custom_directives import (  # noqa
     parse_navbar_config,
     setup_context,
     pregenerate_example_rsts,
+    RayOpenAPIRenderer,
 )
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -54,11 +55,14 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx.ext.autosummary",
     "sphinxcontrib.autodoc_pydantic",
-    "sphinxcontrib.redoc",
+    "sphinxcontrib.openapi",
     "sphinx_remove_toctrees",
     "sphinx_design",
     "sphinx.ext.intersphinx",
 ]
+
+openapi_renderers = {"rayopenapi": RayOpenAPIRenderer}
+openapi_default_renderer = "rayopenapi"
 
 remove_from_toctrees = [
     "cluster/running-applications/job-submission/doc/*",
@@ -457,16 +461,16 @@ def setup(app):
     app.connect("build-finished", linkcheck_summarizer.summarize)
 
 
-redoc = [
-    {
-        "name": "Ray Jobs API",
-        "page": "cluster/running-applications/job-submission/api",
-        "spec": "cluster/running-applications/job-submission/openapi.yml",
-        "embed": True,
-    },
-]
+# redoc = [
+#     {
+#         "name": "Ray Jobs API",
+#         "page": "cluster/running-applications/job-submission/api",
+#         "spec": "cluster/running-applications/job-submission/openapi.yml",
+#         "embed": True,
+#     },
+# ]
 
-redoc_uri = "https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"
+# redoc_uri = "https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"
 
 autosummary_filename_map = {
     "ray.serve.deployment": "ray.serve.deployment_decorator",
