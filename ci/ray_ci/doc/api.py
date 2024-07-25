@@ -1,6 +1,5 @@
 import re
 import importlib
-import inspect
 
 from enum import Enum
 from dataclasses import dataclass
@@ -58,9 +57,6 @@ class API:
             if line.strip().startswith(":"):
                 # option lines
                 continue
-            if line.strip().startswith(".."):
-                # comment lines
-                continue
             if not line.strip():
                 # empty lines
                 continue
@@ -111,21 +107,24 @@ class API:
         for example). This method converts the alias to full name. This is to make sure
         out analysis can be performed on the same set of canonial names.
         """
-        tokens = self.name.split(".")
+        modname, _, objname = self.name.rpartition(".")
+        try:
+            module = importlib.import_module(modname)
+            obj = getattr(module, objname)
+            return f"{obj.__module__}.{obj.__qualname__}"
+        except (ModuleNotFoundError, AttributeError):
+            pass
 
-        # convert the name into a python object, by converting the module token by token
-        attribute = importlib.import_module(tokens[0])
-        for token in tokens[1:]:
-            if not hasattr(attribute, token):
-                # return as it is if the name seems malformed
-                return self.name
-            attribute = getattr(attribute, token)
+        try:
+            modname, _, clsname = modname.rpartition(".")
+            module = importlib.import_module(modname)
+            cls = getattr(module, clsname)
+            meth = getattr(cls, objname)
+            return f"{cls.__module__}.{cls.__qualname__}.{meth.__name__}"
+        except (ModuleNotFoundError, AttributeError):
+            return self.name
 
-        if inspect.isclass(attribute) or inspect.isfunction(attribute):
-            return f"{attribute.__module__}.{attribute.__qualname__}"
-        return self.name
-
-    def _is_private_name(self) -> bool:
+    def has_private_name(self) -> bool:
         """
         Check if this API has a private name. Private names are those that start with
         underscores.
@@ -140,10 +139,10 @@ class API:
         Check if this API is public. Public APIs are those that are annotated as public
         and not have private names.
         """
-        return (
-            self.annotation_type == AnnotationType.PUBLIC_API
-            and not self._is_private_name()
-        )
+        return self.annotation_type == AnnotationType.PUBLIC_API
+
+    def is_developer(self) -> bool:
+        return self.annotation_type == AnnotationType.DEVELOPER_API
 
     def is_deprecated(self) -> bool:
         """
@@ -152,28 +151,11 @@ class API:
         """
         return self.annotation_type == AnnotationType.DEPRECATED
 
-    @staticmethod
-    def split_good_and_bad_apis(
-        api_in_codes: Dict[str, "API"], api_in_docs: Set[str], white_list_apis: Set[str]
-    ) -> Tuple[List[str]]:
-        """
-        Given the APIs in the codebase and the documentation, split the APIs into good
-        and bad APIs. Good APIs are those that are public and documented, bad APIs are
-        those that are public but NOT documented.
-        """
-        good_apis = []
-        bad_apis = []
+    def __hash__(self):
+        return hash(self.get_canonical_name())
 
-        for name, api in api_in_codes.items():
-            if not api.is_public():
-                continue
+    def __eq__(self, other):
+        return self.get_canonical_name() == other.get_canonical_name()
 
-            if name in white_list_apis:
-                continue
-
-            if name in api_in_docs:
-                good_apis.append(name)
-            else:
-                bad_apis.append(name)
-
-        return good_apis, bad_apis
+    def __str__(self):
+        return self.get_canonical_name()

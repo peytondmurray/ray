@@ -1,91 +1,212 @@
-import click
+import pathlib
+import re
+import sys
+import textwrap
+from typing import Dict, List, Set, Tuple
 
-from ci.ray_ci.doc.module import Module
-from ci.ray_ci.doc.autodoc import Autodoc
-from ci.ray_ci.doc.api import API
-from ci.ray_ci.utils import logger
+from sphinx.application import Sphinx
 
-TEAM_API_CONFIGS = {
-    "data": {
-        "head_modules": {"ray.data", "ray.data.grouped_data"},
-        "head_doc_file": "doc/source/data/api/api.rst",
-        # List of APIs that are not following our API policy, and we will be fixing, or
-        # we cannot deprecate them although we want to
-        "white_list_apis": {
-            # not sure what to do
-            "ray.data.dataset.MaterializedDataset",
-            # special case where we cannot deprecate although we want to
-            "ray.data.random_access_dataset.RandomAccessDataset",
-        },
-    },
-    "serve": {
-        "head_modules": {"ray.serve"},
-        "head_doc_file": "doc/source/serve/api/index.md",
-        "white_list_apis": {},
-    },
-    "core": {
-        "head_modules": {"ray"},
-        "head_doc_file": "doc/source/ray-core/api/index.rst",
-        "white_list_apis": {
-            # These APIs will be documented in near future
-            "ray.util.scheduling_strategies.DoesNotExist",
-            "ray.util.scheduling_strategies.Exists",
-            "ray.util.scheduling_strategies.NodeLabelSchedulingStrategy",
-            "ray.util.scheduling_strategies.In",
-            "ray.util.scheduling_strategies.NotIn",
-            # TODO(jjyao): document or deprecate these APIs
-            "ray.experimental.compiled_dag_ref.CompiledDAGFuture",
-            "ray.experimental.compiled_dag_ref.CompiledDAGRef",
-            "ray.cross_language.cpp_actor_class",
-            "ray.cross_language.cpp_function",
-            "ray.client_builder.ClientContext",
-            "ray.remote_function.RemoteFunction",
-        },
-    },
-}
+sys.path.insert(0, str(pathlib.Path(__file__).parent))
+sys.path.insert(
+    0, str(pathlib.Path(__file__).parent.parent.parent.parent)
+)  # Base of the repo
+
+from api import API  # noqa: E402
+from module import Module  # noqa: E402
 
 
-@click.command()
-@click.argument("ray_checkout_dir", required=True, type=str)
-@click.argument("team", required=True, type=click.Choice(list(TEAM_API_CONFIGS.keys())))
-def main(ray_checkout_dir: str, team: str) -> None:
+def _validate_documented_public_apis(
+    api_in_codes: Dict[str, API],
+    api_in_docs: Dict[str, API],
+    white_list_apis: Set[str],
+) -> Tuple[Set[str], ...]:
     """
-    This script checks for annotated classes and functions in a module, and finds
-    discrepancies between the annotations and the documentation.
+    Validate APIs that are public and documented.
     """
+    good_apis = set()
+    private_documented_apis = set()
+    deprecated_documented_apis = set()
+    undocumented_public_apis = set()
+    undocumented_deprecated_public_apis = set()
+    public_but_private_name = set()
 
-    # Load all APIs from the codebase
-    api_in_codes = {}
-    for module in TEAM_API_CONFIGS[team]["head_modules"]:
-        module = Module(module)
-        api_in_codes.update(
-            {api.get_canonical_name(): api for api in module.get_apis()}
-        )
+    for code_api_name, api in api_in_codes.items():
+        if api.is_public():
+            if code_api_name in api_in_docs:
+                good_apis.add(api)
+            else:
+                if api.has_private_name():
+                    public_but_private_name.add(api)
 
-    # Load all APIs from the documentation
-    autodoc = Autodoc(f"{ray_checkout_dir}/{TEAM_API_CONFIGS[team]['head_doc_file']}")
-    api_in_docs = {api.get_canonical_name() for api in autodoc.get_apis()}
+                undocumented_public_apis.add(api)
+        elif api.is_developer():
+            continue
+        elif api.is_deprecated():
+            if code_api_name in api_in_docs:
+                deprecated_documented_apis.add(api)
+            else:
+                undocumented_deprecated_public_apis.add(api)
+        else:
+            if code_api_name in api_in_docs:
+                private_documented_apis.add(api)
 
-    # Load the white list APIs
-    white_list_apis = TEAM_API_CONFIGS[team]["white_list_apis"]
-
-    # Policy 01: all public APIs should be documented
-    logger.info("Validating that public APIs should be documented...")
-    good_apis, bad_apis = API.split_good_and_bad_apis(
-        api_in_codes, api_in_docs, white_list_apis
+    return (
+        good_apis,
+        private_documented_apis,
+        deprecated_documented_apis,
+        undocumented_public_apis,
+        undocumented_deprecated_public_apis,
+        public_but_private_name,
     )
 
-    logger.info("Public APIs that are documented:")
-    for api in good_apis:
-        logger.info(f"\t{api}")
 
-    logger.info("Public APIs that are NOT documented:")
-    for api in bad_apis:
-        logger.info(f"\t{api}")
+def get_all_docs() -> list[pathlib.Path]:
+    """Get a list of all rst/md/ipynb files ingested by sphinx.
 
-    assert not bad_apis, "Some public APIs are not documented. Please document them."
+    Returns
+    -------
+    list[pathlib.Path]
 
-    return
+    """
+    root_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
+    doc_source = root_dir / "doc" / "source"
+    app = Sphinx(doc_source, None, "/tmp/output/", "/tmp/doctrees/", "html")
+
+    docs = []
+    extensions = [".md", ".rst", ".ipynb"]
+    for doc in app.env.found_docs:
+
+        if doc.startswith("_templates"):
+            continue
+
+        for ext in extensions:
+            file = (doc_source / doc).with_suffix(ext)
+            if file.exists():
+                docs.append(file)
+                break
+
+    return docs
+
+
+def get_autodoc_apis(docs: list[pathlib.Path]) -> dict[pathlib.Path, list[API]]:
+    autodoc_apis = {}
+    for doc in docs:
+        autodoc_apis[doc] = parse_autodoc_directives(doc)
+
+    return autodoc_apis
+
+
+def parse_autodoc_directives(rst_file: pathlib.Path) -> List[API]:
+    """Parse the rst file to find the autodoc APIs.
+
+    Example content of the rst file:
+
+        .. currentmodule:: mymodule
+
+        .. autoclass:: myclass
+
+        .. autosummary::
+
+            myclass.myfunc_01
+            myclass.myfunc_02
+    """
+    _SPHINX_CURRENTMODULE_HEADER = ".. currentmodule::"
+    # _SPHINX_TOCTREE_HEADER = ".. toctree::"
+    # _SPHINX_INCLUDE_HEADER = ".. include::"
+    _SPHINX_AUTOSUMMARY_HEADER = ".. autosummary::"
+    _SPHINX_AUTOCLASS_HEADER = ".. autoclass::"
+
+    if not rst_file.exists():
+        return []
+
+    apis = []
+    module = None
+    with open(rst_file, "r") as f:
+        line = f.readline()
+        while line:
+            # parse currentmodule block
+            if line.startswith(_SPHINX_CURRENTMODULE_HEADER):
+                module = line[len(_SPHINX_CURRENTMODULE_HEADER) :].strip()
+
+            # parse autoclass block
+            if line.startswith(_SPHINX_AUTOCLASS_HEADER):
+                apis.append(API.from_autoclass(line, module))
+
+            # parse autosummary block
+            if line.startswith(_SPHINX_AUTOSUMMARY_HEADER):
+                doc = line
+                line = f.readline()
+                # collect lines until the end of the autosummary block
+                while line:
+                    doc += line
+                    if line.strip() and not re.match(r"\s", line):
+                        # end of autosummary, \s means empty space, this line is
+                        # checking if the line is not empty and not starting with
+                        # empty space
+                        break
+                    line = f.readline()
+
+                apis.extend(API.from_autosummary(doc, module))
+                continue
+
+            line = f.readline()
+
+    return [api for api in apis if api]
+
+
+def sort_format(items):
+    return textwrap.indent(
+        "\n".join(sorted(str(item) for item in items)),
+        "  ",
+    )
+
+
+def main():
+    modules = {
+        # 'data': ['ray.data', 'ray.data.grouped_data'],
+        # 'train': ['ray.train'],
+        "tune": ["ray.tune"],
+    }
+    docs = get_all_docs()
+    apis = get_autodoc_apis(docs)
+
+    apis_in_docs = {}
+    for doc, doc_apis in apis.items():
+        for api in doc_apis:
+            apis_in_docs[api.get_canonical_name()] = api
+
+    apis_in_code = {}
+    for library, lib_modules in modules.items():
+        for module in lib_modules:
+            for api in Module(module).get_apis():
+                apis_in_code[api.get_canonical_name()] = api
+
+    (
+        good,
+        private_documented,
+        deprecated_documented,
+        undocumented_public,
+        undocumented_deprecated_public,
+        public_but_private_name,
+    ) = _validate_documented_public_apis(apis_in_code, apis_in_docs, {})
+
+    print("Good APIs:")
+    print(sort_format(good))
+    print("")
+    print("Private but documented APIs:")
+    print(sort_format(private_documented))
+    print("")
+    print("Deprecated but documented APIs:")
+    print(sort_format(deprecated_documented))
+    print("")
+    print("Undocumented Public APIs:")
+    print(sort_format(undocumented_public))
+    print("")
+    print("Undocumented Deprecated Public APIs:")
+    print(sort_format(undocumented_deprecated_public))
+    print("")
+    print("Public APIs with private names")
+    print(sort_format(public_but_private_name))
 
 
 if __name__ == "__main__":
