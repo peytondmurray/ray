@@ -1,6 +1,5 @@
 import argparse
 import errno
-import io
 import logging
 import os
 import pathlib
@@ -808,8 +807,8 @@ setuptools.setup(
     author="Ray Team",
     author_email="ray-dev@googlegroups.com",
     description=(setup_spec.description),
-    long_description=io.open(
-        os.path.join(ROOT_DIR, os.path.pardir, "README.rst"), "r", encoding="utf-8"
+    long_description=open(
+        os.path.join(ROOT_DIR, "README.rst"), "r", encoding="utf-8"
     ).read(),
     url="https://github.com/ray-project/ray",
     keywords=(
